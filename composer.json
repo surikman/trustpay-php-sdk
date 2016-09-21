@@ -1,0 +1,17 @@
+{
+  "name": "surikman/trustpay-php-sdk",
+  "description": "Easy unofficial trustpay PHP SDK",
+  "minimum-stability": "dev",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Juraj Šurman",
+      "email": "juraj@surman.sk"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "TrustPay\\": "./src"
+    }
+  }
+}

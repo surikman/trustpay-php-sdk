@@ -1,7 +1,7 @@
 {
   "name": "surikman/trustpay-php-sdk",
   "description": "Easy unofficial trustpay PHP SDK",
-  "minimum-stability": "dev",
+  "minimum-stability": "stable",
   "license": "proprietary",
   "authors": [
     {

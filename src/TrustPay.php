@@ -12,7 +12,15 @@ class TrustPay
      *
      * @param Configuration $configuration
      */
-    public function __construct(Configuration $configuration)
+    public function __construct(Configuration $configuration = null)
+    {
+        $this->configuration = $configuration;
+    }
+
+    /**
+     * @param Configuration $configuration
+     */
+    public function setConfiguration(Configuration $configuration)
     {
         $this->configuration = $configuration;
     }
@@ -21,11 +29,18 @@ class TrustPay
     /**
      * @param null $amount
      * @param null $reference
+     * @param null $currency
+     * @param null $email
+     * @param null $description
      *
      * @return Request
      */
-    public function payment($amount = null, $reference = null)
+    public function payment($amount = null, $reference = null, $email = null, $description = null, $currency = null)
     {
+        if (null === $this->configuration) {
+            throw new \InvalidArgumentException("Setup configuration first");
+        }
+
         $request = new Request(
             $this->configuration->getAccountId(),
             $this->configuration->getSecret(),
@@ -34,7 +49,10 @@ class TrustPay
 
         $request->setAmount($amount);
         $request->setReference($reference);
-        $request->setCurrency($this->configuration->getCurrency());
+        $request->setCurrency($currency ?: $this->configuration->getCurrency());
+        $request->setLanguage($this->configuration->getLanguage());
+        $request->setCustomerEmail($email);
+        $request->setDescription($description);
 
         $request->setCancelUrl($this->configuration->getCancelUrl());
         $request->setSuccessUrl($this->configuration->getSuccessUrl());
@@ -56,11 +74,16 @@ class TrustPay
 
     /**
      * @param array $data
+     * @param null  $secret secret is not required if configuration with secret was provided
      *
      * @return Notification
      */
-    public function parseNotification(array $data)
+    public function parseNotification(array $data, $secret = null)
     {
-        return new Notification($data, $this->configuration->getSuccessUrl());
+        if (empty($secret) && (null === $this->configuration || null === $this->configuration->getSecret())) {
+            throw new \InvalidArgumentException("Setup configuration first or insert secret");
+        }
+
+        return new Notification($data, $this->configuration->getSecret());
     }
 }

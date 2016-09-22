@@ -17,6 +17,9 @@ class Configuration
     private $currency;
 
     /** @var string */
+    private $language;
+
+    /** @var string */
     private $notificationUrl;
 
     /** @var string */
@@ -27,6 +30,22 @@ class Configuration
 
     /** @var string */
     private $errorUrl;
+
+    /**
+     * @return string
+     */
+    public function getLanguage()
+    {
+        return $this->language;
+    }
+
+    /**
+     * @param string $language
+     */
+    public function setLanguage($language)
+    {
+        $this->language = $language;
+    }
 
     /**
      * @return string

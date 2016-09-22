@@ -106,6 +106,14 @@ class Notification
     /**
      * @return bool
      */
+    public function isOnlyAuthorized()
+    {
+        return in_array($this->result, [ 5 ]);
+    }
+
+    /**
+     * @return bool
+     */
     public function isCardPayment()
     {
         return $this->cardPayment;

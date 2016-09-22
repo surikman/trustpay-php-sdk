@@ -5,7 +5,7 @@ namespace TrustPay;
 class Configuration
 {
     /** @var string */
-    private $apiUrl = 'https://ib.trustpay.eu/mapi/cardpayments.aspx';
+    private $endpoint = 'https://ib.trustpay.eu/mapi/cardpayments.aspx';
 
     /** @var string */
     private $accountId;
@@ -95,17 +95,17 @@ class Configuration
     /**
      * @return string
      */
-    public function getApiUrl()
+    public function getEndpoint()
     {
-        return $this->apiUrl;
+        return $this->endpoint;
     }
 
     /**
-     * @param string $apiUrl
+     * @param string $endpoint
      */
-    public function setApiUrl($apiUrl)
+    public function setEndpoint($endpoint)
     {
-        $this->apiUrl = $apiUrl;
+        $this->endpoint = $endpoint;
     }
 
     /**

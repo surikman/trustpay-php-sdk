@@ -6,7 +6,7 @@ class Request
 {
     protected $accountId;
     protected $key;
-    protected $baseUrl;
+    protected $endpoint;
 
     protected $amount;
     protected $reference;
@@ -29,13 +29,13 @@ class Request
      *
      * @param $accountId
      * @param $key
-     * @param $baseUrl
+     * @param $endpoint
      */
-    public function __construct($accountId, $key, $baseUrl)
+    public function __construct($accountId, $key, $endpoint)
     {
         $this->accountId = $accountId;
         $this->key = $key;
-        $this->baseUrl = $baseUrl;
+        $this->endpoint = $endpoint;
     }
 
     /**
@@ -50,7 +50,7 @@ class Request
             }
         }
 
-        return $this->baseUrl . '?' . $this->buildQuery();
+        return $this->endpoint . '?' . $this->buildQuery();
     }
 
     /**

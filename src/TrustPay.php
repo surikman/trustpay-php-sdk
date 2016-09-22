@@ -29,7 +29,7 @@ class TrustPay
         $request = new Request(
             $this->configuration->getAccountId(),
             $this->configuration->getSecret(),
-            $this->configuration->getApiUrl()
+            $this->configuration->getEndpoint()
         );
 
         $request->setAmount($amount);

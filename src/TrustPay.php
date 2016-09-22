@@ -84,6 +84,8 @@ class TrustPay
             throw new \InvalidArgumentException("Setup configuration first or insert secret");
         }
 
-        return new Notification($data, $this->configuration->getSecret());
+        $secret = $secret ?: $this->configuration->getSecret();
+
+        return new Notification($data, $secret);
     }
 }

@@ -12,14 +12,20 @@ class Serializer
     /**
      * @param array $data
      *
-     * @return string
+     * @return string|null
      */
     public function serialize($data)
     {
         $intersectKeys = array_intersect(array_keys($data), static::$storedKeys);
         $token = [];
         foreach ($intersectKeys as $key) {
-            $token[] = sprintf("%s:%s", $key, $data[$key]);
+            $value = $data[$key];
+
+            if (empty($value)) { // all value have to be not empty
+                return null;
+            }
+
+            $token[] = sprintf("%s:%s", $key, $value);
         }
 
         return $this->crypt(implode("|", $token));

@@ -44,7 +44,10 @@ class Request implements RequestInterface
 
         $response = $this->httpClient->get($this->getUrl());
 
-        return $this->parseBackgroundResponse($response);
+        $response = $this->parseBackgroundResponse($response);
+        $response->setRequestedUrl($this->getUrl());
+
+        return $response;
     }
 
     /**

@@ -11,8 +11,8 @@ $configuration->setNotificationUrl("https://example.com/notification");
 $configuration->setAccountId("987654321");
 $configuration->setSecret("abcd1234");
 
-$configuration->setCurrency(\TrustPay\Currency::_EUR_);
-$configuration->setLanguage(\TrustPay\Language::SK);
+$configuration->setCurrency(\TrustPay\Enums\Currency::_EUR_);
+$configuration->setLanguage(\TrustPay\Enums\Language::SK);
 
 $trustPay = new \TrustPay\TrustPay($configuration);
 

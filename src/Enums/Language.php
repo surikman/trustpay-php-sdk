@@ -1,6 +1,6 @@
 <?php
 
-namespace TrustPay;
+namespace TrustPay\Enums;
 
 class Language
 {

@@ -1,11 +1,23 @@
 <?php
+/**
+ * @author  SuRiKmAn <surikman@surikman.sk>
+ * @link    API documentation https://www.trustpay.eu/wp-content/uploads/2016/03/Merchant-API-integration-2.16.pdf
+ * @created 2016-09-23
+ */
 
 namespace TrustPay;
+
+use TrustPay\Exceptions\InvalidInputArguments;
+use TrustPay\Payment;
+use TrustPay\Refund;
 
 class TrustPay
 {
     /** @var Configuration */
     private $configuration;
+
+    /** @var RequestFactory */
+    private $requestFactory;
 
     /**
      * TrustPay constructor.
@@ -15,6 +27,7 @@ class TrustPay
     public function __construct(Configuration $configuration = null)
     {
         $this->configuration = $configuration;
+        $this->requestFactory = new RequestFactory();
     }
 
     /**
@@ -27,39 +40,165 @@ class TrustPay
 
 
     /**
-     * @param null $amount
-     * @param null $reference
-     * @param null $currency
+     * If you use only one payment type each configuration, use just payment() method,
+     * but you are able to use @see paymentWithBank, paymentWithCard to exactly setup endpoint
+     *
+     * @param float       $amount      exactly 2 decimal places - Decimal(13, 2)
+     *
+     * @param string      $reference   Char(500) (except “<”, “>”)
+     *                                 Reference allowed format is Alphanumeric(19) - only first 19 characters of the
+     *                                 REF parameter are stored by TrustPay for later support inquiries.
+     *
+     * @param string|null $currency    Char(3)
+     *
+     * @param string|null $email       Varchar(254)
+     *
+     * @param string|null $description Only characters a-z, A-Z, 0-9 and space character of parameter description are
+     *                                 displayed to a customer (payer) on the payment page. Other characters are
+     *                                 changed
+     *                                 to ‘ ‘ (space). Max description length is Char(256)
+     *
+     * @return Payment\Request
+     */
+    public function payment($amount, $reference, $email = null, $description = null, $currency = null)
+    {
+        return $this->createPaymentRequest($amount, $reference, $email, $description, $currency);
+    }
+
+
+    /**
+     * @see payment() as description of input arguments
+     *
+     * @param      $amount
+     * @param      $reference
      * @param null $email
      * @param null $description
+     * @param null $currency
      *
-     * @return Request
+     * @return Payment\Request
      */
-    public function payment($amount = null, $reference = null, $email = null, $description = null, $currency = null)
+    public function paymentWithCard($amount, $reference, $email = null, $description = null, $currency = null)
     {
-        if (null === $this->configuration) {
-            throw new \InvalidArgumentException("Setup configuration first");
-        }
+        $this->assertConfiguration();
 
-        $request = new Request(
-            $this->configuration->getAccountId(),
-            $this->configuration->getSecret(),
-            $this->configuration->getEndpoint()
-        );
+        $this->configuration->setPaymentType(Configuration::PAYMENT_TYPE_CARD);
 
-        $request->setAmount($amount);
-        $request->setReference($reference);
-        $request->setCurrency($currency ?: $this->configuration->getCurrency());
-        $request->setLanguage($this->configuration->getLanguage());
-        $request->setCustomerEmail($email);
-        $request->setDescription($description);
+        return $this->createPaymentRequest($amount, $reference, $email, $description, $currency);
+    }
 
-        $request->setCancelUrl($this->configuration->getCancelUrl());
-        $request->setSuccessUrl($this->configuration->getSuccessUrl());
-        $request->setNotificationUrl($this->configuration->getNotificationUrl());
-        $request->setErrorUrl($this->configuration->getErrorUrl());
+
+    /**
+     * @see payment() as description of input arguments
+     *
+     * @param      $amount
+     * @param      $reference
+     * @param null $email
+     * @param null $description
+     * @param null $currency
+     *
+     * @return Payment\Request
+     */
+    public function paymentWithBank($amount, $reference, $email = null, $description = null, $currency = null)
+    {
+        $this->assertConfiguration();
+
+        $this->configuration->setPaymentType(Configuration::PAYMENT_TYPE_BANK);
+
+        return $this->createPaymentRequest($amount, $reference, $email, $description, $currency);
+    }
+
+    /**
+     * @see payment() as description of input arguments
+     *
+     * @param        $amount
+     * @param        $reference
+     * @param null   $email
+     * @param null   $description
+     * @param null   $currency
+     *
+     * @return Payment\Request
+     */
+    public function paymentWithCardStoring(
+        $amount,
+        $reference,
+        $email = null,
+        $description = null,
+        $currency = null
+    ) {
+        $this->assertConfiguration();
+
+        $this->configuration->setPaymentType(Configuration::PAYMENT_TYPE_CARD_EXTENSION);
+
+        $request = $this->createPaymentRequest($amount, $reference, $email, $description, $currency);
+        $request->setAuthorizedStoreCard(true);
 
         return $request;
+    }
+
+    /**
+     * @param      $cardToken
+     * @param      $amount
+     * @param      $reference
+     * @param null $email
+     * @param null $description
+     * @param null $currency
+     *
+     * @return Response
+     * @throws InvalidInputArguments
+     */
+    public function paymentWithStoredCard(
+        $cardToken,
+        $amount,
+        $reference,
+        $email = null,
+        $description = null,
+        $currency = null
+    ) {
+
+        $this->assertConfiguration();
+
+        $this->configuration->setPaymentType(Configuration::PAYMENT_TYPE_CARD_EXTENSION);
+
+        $request = $this->requestFactory->createCardOnFile(
+            $this->configuration,
+            $amount,
+            $reference,
+            $email,
+            $description,
+            $currency
+        );
+
+        return $request->payment($cardToken);
+    }
+
+
+    /**
+     * @param      $transactionId
+     * @param      $amount
+     * @param      $reference
+     * @param null $currency
+     *
+     * @return Response
+     */
+    public function refund(
+        $transactionId,
+        $amount,
+        $reference,
+        $currency = null
+    ) {
+
+        $this->assertConfiguration();
+
+        $this->configuration->setPaymentType(Configuration::PAYMENT_TYPE_CARD_EXTENSION);
+
+        $request = $this->requestFactory->createRefund(
+            $this->configuration,
+            $amount,
+            $reference,
+            $currency
+        );
+
+        return $request->refund($transactionId);
     }
 
     /**
@@ -77,15 +216,52 @@ class TrustPay
      * @param null  $secret secret is not required if configuration with secret was provided
      *
      * @return Notification
+     * @throws InvalidInputArguments
      */
     public function parseNotification(array $data, $secret = null)
     {
         if (empty($secret) && (null === $this->configuration || null === $this->configuration->getSecret())) {
-            throw new \InvalidArgumentException("Setup configuration first or insert secret");
+            throw new InvalidInputArguments("Setup configuration first or insert secret");
         }
 
         $secret = $secret ?: $this->configuration->getSecret();
 
         return new Notification($data, $secret);
     }
+
+    /**
+     * @param $amount
+     * @param $reference
+     * @param $email
+     * @param $description
+     * @param $currency
+     *
+     * @return Payment\Request
+     * @throws InvalidInputArguments
+     */
+    protected function createPaymentRequest($amount, $reference, $email, $description, $currency)
+    {
+        $this->assertConfiguration();
+
+        return $this->requestFactory->createPayment(
+            $this->configuration,
+            $amount,
+            $reference,
+            $email,
+            $description,
+            $currency
+        );
+    }
+
+    /**
+     * @throws InvalidInputArguments
+     * @return void
+     */
+    private function assertConfiguration()
+    {
+        if (null === $this->configuration) {
+            throw new InvalidInputArguments("Setup configuration first");
+        }
+    }
+
 }

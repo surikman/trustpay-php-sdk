@@ -1,3 +1,6 @@
-<?php namespace TrustPay\Exceptions;
+<?php
+namespace TrustPay\Exceptions;
 
-class InvalidNotificationSignature extends \Exception {}
+class InvalidNotificationSignature extends \Exception
+{
+}

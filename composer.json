@@ -13,5 +13,8 @@
     "psr-4": {
       "TrustPay\\": "./src"
     }
+  },
+  "require": {
+    "guzzlehttp/guzzle": "^6.2"
   }
 }

@@ -2,6 +2,8 @@
 
 namespace TrustPay;
 
+use TrustPay\CardOnFile;
+
 class Notification
 {
     protected $accountId;
@@ -9,36 +11,38 @@ class Notification
     protected $amount;
     protected $currency;
     protected $reference;
-
     protected $result;
     protected $transactionId;
     protected $orderId;
-
     protected $signed;
     protected $signature;
-
     protected $cardPayment = false;
     protected $cardId;
-    protected $cardNumber;
+    protected $cardMask;
     protected $cardExpiration;
     protected $cardAuthorizationNumber;
     protected $cardAcquirerResponseId;
     protected $cardRecTxSec;
     protected $cardSignature;
-
-    protected $key;
-
     protected $messages = [
         0 => 'Payment was successfully processed.',
+        1 => 'Payment is pending (offline payment)',
         2 => 'TrustPay has been notified that the client placed a payment order or has made payment, but further confirmation from 3rd party is needed. Another notification (with result code 0 - success) will be sent when TrustPay receives and processes payment from 3rd party.',
         3 => 'Payment was successfully authorized. Another notification (with result code 0 - success) will be sent when TrustPay receives and processes payment from 3rd party.',
         4 => 'TrustPay has received the payment, but it must be internally processed before it is settled on the merchant‘s account. When the payment is successfully processed, another notification (with the result code 0 – success) will be sent.',
         5 => 'AuthorizedOnly – reserved for future use',
     ];
 
-    public function __construct(array $data, $key)
+    /** @var SignatureValidator */
+    private $signatureValidator;
+
+    /** @var array */
+    private $rawData;
+
+    public function __construct(array $data, $secret)
     {
-        $this->key = $key;
+        $this->rawData = $data;
+        $this->signatureValidator = new SignatureValidator($secret);
 
         $requiredFields = [ 'AID', 'TYP', 'AMT', 'CUR', 'REF', 'RES', 'TID', 'OID', 'TSS', 'SIG' ];
 
@@ -63,18 +67,18 @@ class Notification
             throw new Exceptions\InvalidNotificationSignature;
         }
 
-        if (isset($data['CardID'])) {
+        if (array_key_exists('CardID', $data)) {
             $requiredFields = [ 'CardID', 'CardMask', 'CardExp', 'AuthNumber', 'CardRecTxSec', 'AcqResId', 'SIG2' ];
 
             foreach ($requiredFields as $required) {
-                if (!isset($data[$required])) {
+                if (!array_key_exists($required, $data)) {
                     throw new Exceptions\InvalidNotification;
                 }
             }
 
             $this->cardPayment = true;
             $this->cardId = $data['CardID'];
-            $this->cardNumber = $data['CardMask'];
+            $this->cardMask = $data['CardMask'];
             $this->cardExpiration = $data['CardExp'];
             $this->cardAuthorizationNumber = $data['AuthNumber'];
             $this->cardAcquirerResponseId = $data['AcqResId'];
@@ -117,6 +121,14 @@ class Notification
     public function isCardPayment()
     {
         return $this->cardPayment;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCardToken()
+    {
+        return (new CardOnFile\Serializer())->serialize($this->rawData);
     }
 
     /**
@@ -202,9 +214,9 @@ class Notification
     /**
      * @return mixed
      */
-    public function getCardNumber()
+    public function getCardMask()
     {
-        return $this->cardNumber;
+        return $this->cardMask;
     }
 
     /**
@@ -247,10 +259,19 @@ class Notification
      */
     protected function verifySignature()
     {
-        $message = $this->accountId . $this->type . $this->amount . $this->currency . $this->reference . $this->result
-            . $this->transactionId . $this->orderId . $this->signed;
+        $message = $this->signatureValidator->createMessage(
+            $this->accountId,
+            $this->type,
+            $this->amount,
+            $this->currency,
+            $this->reference,
+            $this->result,
+            $this->transactionId,
+            $this->orderId,
+            $this->signed
+        );
 
-        return $this->signature === $this->computeSignature($message);
+        return $this->signatureValidator->isValid($this->signature, $message);
     }
 
     /**
@@ -258,20 +279,24 @@ class Notification
      */
     protected function verifyCardSignature()
     {
-        $message = $this->accountId . $this->type . $this->amount . $this->currency . $this->reference . $this->result
-            . $this->transactionId . $this->orderId . $this->signed . $this->cardId . $this->cardNumber
-            . $this->cardExpiration . $this->cardAuthorizationNumber . $this->cardRecTxSec . $this->cardAcquirerResponseId;
+        $message = $this->signatureValidator->createMessage(
+            $this->accountId,
+            $this->type,
+            $this->amount,
+            $this->currency,
+            $this->reference,
+            $this->result,
+            $this->transactionId,
+            $this->orderId,
+            $this->signed,
+            $this->cardId,
+            $this->cardMask,
+            $this->cardExpiration,
+            $this->cardAuthorizationNumber,
+            $this->cardRecTxSec,
+            $this->cardAcquirerResponseId
+        );
 
-        return $this->cardSignature === $this->computeSignature($message);
-    }
-
-    /**
-     * @param $message
-     *
-     * @return string
-     */
-    protected function computeSignature($message)
-    {
-        return strtoupper(hash_hmac('sha256', pack('A*', $message), pack('A*', $this->key)));
+        return $this->signatureValidator->isValid($this->cardSignature, $message);
     }
 }

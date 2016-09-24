@@ -16,6 +16,9 @@ class Response
     protected $messages = [
         0    => 'Payment was successfully processed.',
         1    => 'Payment is pending (offline payment)',
+        2    => 'TrustPay has been notified that the client placed a payment order or has made payment, but further confirmation from 3rd party is needed. Another notification (with result code 0 - success) will be sent when TrustPay receives and processes payment from 3rd party.',
+        3    => 'Payment was successfully authorized. Another notification (with result code 0 - success) will be sent when TrustPay receives and processes payment from 3rd party.',
+        4    => 'TrustPay has received the payment, but it must be internally processed before it is settled on the merchant‘s account. When the payment is successfully processed, another notification (with the result code 0 – success) will be sent.',
         5    => 'AuthorizedOnly – reserved for future use',
         1001 => 'Data sent is not properly formatted',
         1002 => 'Account with specified ID was not found.',
@@ -55,6 +58,22 @@ class Response
     public function getMessage()
     {
         return $this->codeToMessage($this->result, 'Unknown status.');
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPaid()
+    {
+        return in_array($this->result, [ 0, 3, 4 ]);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isProcessing()
+    {
+        return in_array($this->result, [ 1, 2 ]);
     }
 
     /**

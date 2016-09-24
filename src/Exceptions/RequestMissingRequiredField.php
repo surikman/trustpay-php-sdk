@@ -1,3 +1,6 @@
-<?php namespace TrustPay\Exceptions;
+<?php
+namespace TrustPay\Exceptions;
 
-class RequestMissingRequiredField extends \Exception {}
+class RequestMissingRequiredField extends \Exception
+{
+}

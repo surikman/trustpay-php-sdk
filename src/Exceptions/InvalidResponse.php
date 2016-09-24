@@ -1,3 +1,6 @@
-<?php namespace TrustPay\Exceptions;
+<?php
+namespace TrustPay\Exceptions;
 
-class InvalidResponse extends \Exception {}
+class InvalidResponse extends \Exception
+{
+}

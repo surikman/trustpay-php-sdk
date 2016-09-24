@@ -2,10 +2,34 @@
 
 namespace TrustPay;
 
+use TrustPay\Exceptions\InvalidInputArguments;
+
 class Configuration
 {
+    const PAYMENT_TYPE_BANK = 1;
+    const PAYMENT_TYPE_CARD = 2;
+    const PAYMENT_TYPE_CARD_EXTENSION = 3;
+
+    const DEFAULT_PAYMENT_TYPE = self::PAYMENT_TYPE_BANK;
+
+    /** @var array */
+    private static $allowedPaymentTypes = [
+        self::PAYMENT_TYPE_BANK,
+        self::PAYMENT_TYPE_CARD,
+        self::PAYMENT_TYPE_CARD_EXTENSION,
+    ];
+
     /** @var string */
-    private $endpoint = 'https://ib.trustpay.eu/mapi/cardpayments.aspx';
+    private $cardPaymentsEndpoint = 'https://ib.trustpay.eu/mapi/cardpayments.aspx';
+
+    /** @var string */
+    private $bankPaymentsEndpoint = 'https://ib.trustpay.eu/mapi/pay.aspx';
+
+    /** @var string */
+    private $cardPaymentsExtensionEndpoint = 'https://ib.trustpay.eu/mapi/cardpaymentshandler.aspx';
+
+    /** @var int */
+    private $paymentType = self::DEFAULT_PAYMENT_TYPE;
 
     /** @var string */
     private $accountId;
@@ -30,6 +54,20 @@ class Configuration
 
     /** @var string */
     private $errorUrl;
+
+    /**
+     * @param int $paymentType Insert one of constant PAYMENT_TYPE_
+     *
+     * @throws InvalidInputArguments
+     */
+    public function setPaymentType($paymentType)
+    {
+        if (!in_array($paymentType, static::$allowedPaymentTypes)) {
+            throw new InvalidInputArguments($paymentType . " is not in allowed payment types");
+        }
+
+        $this->paymentType = $paymentType;
+    }
 
     /**
      * @return string
@@ -114,17 +152,17 @@ class Configuration
     /**
      * @return string
      */
-    public function getEndpoint()
+    public function getCardPaymentsEndpoint()
     {
-        return $this->endpoint;
+        return $this->cardPaymentsEndpoint;
     }
 
     /**
-     * @param string $endpoint
+     * @param string $cardPaymentsEndpoint
      */
-    public function setEndpoint($endpoint)
+    public function setCardPaymentsEndpoint($cardPaymentsEndpoint)
     {
-        $this->endpoint = $endpoint;
+        $this->cardPaymentsEndpoint = $cardPaymentsEndpoint;
     }
 
     /**
@@ -173,5 +211,23 @@ class Configuration
     public function setCurrency($currency)
     {
         $this->currency = $currency;
+    }
+
+    /**
+     * @throws InvalidInputArguments
+     * @return string
+     */
+    public function getEndpoint()
+    {
+        switch ($this->paymentType) {
+            case static::PAYMENT_TYPE_BANK:
+                return $this->bankPaymentsEndpoint;
+            case static::PAYMENT_TYPE_CARD:
+                return $this->cardPaymentsEndpoint;
+            case static::PAYMENT_TYPE_CARD_EXTENSION:
+                return $this->cardPaymentsExtensionEndpoint;
+            default:
+                throw new InvalidInputArguments("Undefined paymentType");
+        }
     }
 }

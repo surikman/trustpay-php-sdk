@@ -127,7 +127,7 @@ class TrustPay
     ) {
         $this->assertConfiguration();
 
-        $this->configuration->setPaymentType(Configuration::PAYMENT_TYPE_CARD_EXTENSION);
+        $this->configuration->setPaymentType(Configuration::PAYMENT_TYPE_CARD);
 
         $request = $this->createPaymentRequest($amount, $reference, $email, $description, $currency);
         $request->setAuthorizedStoreCard(true);

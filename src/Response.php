@@ -5,6 +5,9 @@ namespace TrustPay;
 class Response
 {
     /** @var string */
+    protected $requestedUrl;
+
+    /** @var string */
     protected $reference;
 
     /** @var string */
@@ -112,6 +115,22 @@ class Response
     public function getProcessingId()
     {
         return $this->processingId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRequestedUrl()
+    {
+        return $this->requestedUrl;
+    }
+
+    /**
+     * @param string $requestedUrl
+     */
+    public function setRequestedUrl($requestedUrl)
+    {
+        $this->requestedUrl = $requestedUrl;
     }
 
     /**

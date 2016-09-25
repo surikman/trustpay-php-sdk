@@ -84,18 +84,21 @@ $response = $trustPay->parseNotification($data);
 // $response = $trustPay->parseNotification($data, 'abcd1234');
 
 
-var_dump($response->isPaid());
-var_dump($response->isCardPayment());
-var_dump($response->getMessage());
-var_dump($response->isProcessing());
-var_dump($response->isOnlyAuthorized());
-var_dump($response->getReference());
-var_dump($response->getResult());
-var_dump($response->getCardId());
-var_dump($response->getCardNumber());
-var_dump($response->getCardAcquirerResponseId());
-var_dump($response->getCardAuthorizationNumber());
-var_dump($response->getCardExpiration());
-var_dump($response->getAmount());
+printf("IS PAID: %s\n", var_export($response->isPaid(), true));
+printf("getAmount: %s\n", $response->getAmount());
+printf("isCardPayment: %s\n", var_export($response->isCardPayment(), true));
+printf("isProcessing: %s\n", var_export($response->isProcessing(), true));
+printf("isOnlyAuthorized: %s\n", var_export($response->isOnlyAuthorized(), true));
+printf("getMessage: %s\n", $response->getMessage());
+printf("getReference: %s\n", $response->getReference());
+printf("getResult: %s\n", $response->getResult());
+printf("getCardAcquirerResponseId: %s\n", $response->getCardAcquirerResponseId());
+printf("getCardAuthorizationNumber: %s\n", $response->getCardAuthorizationNumber());
+printf("getCardMask: %s\n", $response->getCardMask());
+printf("getCardId: %s\n", $response->getCardId());
+printf("getCardExpiration: %s\n", $response->getCardExpiration());
+printf("getCardToken: %s\n", $response->getCardToken());
+printf("getCardToken (composed from): %s\n", print_r((new \TrustPay\CardOnFile\Serializer())->deserialize($response->getCardToken()), true));
+
 
 ```

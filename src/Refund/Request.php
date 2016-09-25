@@ -2,6 +2,7 @@
 
 namespace TrustPay\Refund;
 
+use TrustPay\Enums\CardTransactionType;
 use TrustPay\HttpClient\Client;
 use TrustPay\RequestAwareTrait;
 use TrustPay\RequestInterface;
@@ -55,19 +56,17 @@ class Request implements RequestInterface
      */
     protected function buildQuery()
     {
-        $CTY = 8; // Card transaction type For refund set to 8
-
         $message = $this->signatureValidator->createMessage(
             $this->accountId,
             $this->amount,
             $this->currency,
             $this->reference,
-            $CTY,
+            CardTransactionType::REFUND,
             $this->transactionId
         );
 
         $queryData = [
-            'CTY'        => $CTY,
+            'CTY'        => CardTransactionType::REFUND,
             'CardTranID' => $this->transactionId,
             'SIG2'       => $this->signatureValidator->computeSignature($message),
             'SIG'        => $this->createStandardSignature(),

@@ -2,6 +2,7 @@
 
 namespace TrustPay\CardOnFile;
 
+use TrustPay\Enums\CardTransactionType;
 use TrustPay\HttpClient\Client;
 use TrustPay\RequestAwareTrait;
 use TrustPay\RequestInterface;
@@ -77,8 +78,6 @@ class Request implements RequestInterface
      */
     private function getCardOnFileQueryData()
     {
-        $CTY = 2; // Card transaction type For card-on-file transaction set to 2
-
         $card = (new Serializer())->deserialize($this->storedCardToken);
 
         $message = $this->signatureValidator->createMessage(
@@ -86,13 +85,13 @@ class Request implements RequestInterface
             $this->amount,
             $this->currency,
             $this->reference,
-            $CTY,
+            CardTransactionType::CARD_ON_FILE,
             $card['CardID'],
             $card['CardExp']
         );
 
         $queryData = [
-            'CTY'     => $CTY,
+            'CTY'     => CardTransactionType::CARD_ON_FILE,
             'CardId'  => $card['CardID'],
             'CardExp' => $card['CardExp'],
             'SIG2'    => $this->signatureValidator->computeSignature($message),

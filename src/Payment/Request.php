@@ -2,6 +2,7 @@
 
 namespace TrustPay\Payment;
 
+use TrustPay\Enums\CardTransactionType;
 use TrustPay\RequestAwareTrait;
 use TrustPay\RequestInterface;
 use TrustPay\SignatureValidator;
@@ -52,7 +53,7 @@ class Request implements RequestInterface
 
         if ($this->isAuthorizedStoreCard()) {
             $queryData = array_merge($queryData, [
-                'CTY' => 3 // Card transaction type - For initial transaction set to 3
+                'CTY' => CardTransactionType::INITIAL_TRANSACTION,
             ]);
         }
 

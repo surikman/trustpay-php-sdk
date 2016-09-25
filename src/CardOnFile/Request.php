@@ -92,7 +92,7 @@ class Request implements RequestInterface
 
         $queryData = [
             'CTY'     => CardTransactionType::CARD_ON_FILE,
-            'CardId'  => $card['CardID'],
+            'CardID'  => $card['CardID'],
             'CardExp' => $card['CardExp'],
             'SIG2'    => $this->signatureValidator->computeSignature($message),
         ];

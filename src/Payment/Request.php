@@ -53,7 +53,7 @@ class Request implements RequestInterface
 
         if ($this->isAuthorizedStoreCard()) {
             $queryData = array_merge($queryData, [
-                'CTY' => CardTransactionType::INITIAL_TRANSACTION,
+                'CTY' => CardTransactionType::CARD_ON_FILE_REGISTRATION,
             ]);
         }
 

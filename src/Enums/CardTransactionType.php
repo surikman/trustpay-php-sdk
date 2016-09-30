@@ -4,6 +4,7 @@ namespace TrustPay\Enums;
 
 class CardTransactionType
 {
+    const CARD_ON_FILE_REGISTRATION = 1;
     const CARD_ON_FILE = 2;
     const INITIAL_TRANSACTION = 3;
     const SUBSEQUENT_RECURRING = 4;

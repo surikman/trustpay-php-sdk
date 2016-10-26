@@ -43,10 +43,12 @@ class Request implements RequestInterface
     {
         $this->storedCardToken = $storedCardToken;
 
-        $response = $this->httpClient->get($this->getUrl());
+        $requestUrl = $this->getUrl();
+
+        $response = $this->httpClient->get($requestUrl);
 
         $response = $this->parseBackgroundResponse($response);
-        $response->setRequestedUrl($this->getUrl());
+        $response->setRequestedUrl($requestUrl);
 
         return $response;
     }

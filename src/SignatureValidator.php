@@ -41,7 +41,8 @@ class SignatureValidator implements SignatureValidatorInterface
      */
     public function isValid($signature, $message)
     {
-        return $signature === $this->computeSignature($message);
+        $computedSignature = $this->computeSignature($message);
+        return $signature === $computedSignature;
     }
 
 

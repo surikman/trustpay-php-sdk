@@ -177,7 +177,7 @@ trait RequestAwareTrait
     {
         $queryData = [
             'AID'  => $this->accountId,
-            'AMT'  => $this->amount,
+            'AMT'  => number_format($this->amount, 2),
             'CUR'  => $this->currency,
             'REF'  => $this->reference,
             'URL'  => $this->returnUrl,

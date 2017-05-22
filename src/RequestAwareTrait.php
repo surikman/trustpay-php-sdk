@@ -79,7 +79,7 @@ trait RequestAwareTrait
      */
     public function setAmount($amount)
     {
-        $this->amount = $amount;
+        $this->amount = number_format($amount, 2);
     }
 
     /**
@@ -177,7 +177,7 @@ trait RequestAwareTrait
     {
         $queryData = [
             'AID'  => $this->accountId,
-            'AMT'  => number_format($this->amount, 2),
+            'AMT'  => $this->amount,
             'CUR'  => $this->currency,
             'REF'  => $this->reference,
             'URL'  => $this->returnUrl,

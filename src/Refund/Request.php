@@ -66,11 +66,16 @@ class Request implements RequestInterface
         );
 
         $queryData = [
-            'CTY'        => CardTransactionType::REFUND,
-            'CardTranID' => $this->transactionId,
-            'SIG2'       => $this->signatureValidator->computeSignature($message),
-            'SIG'        => $this->createStandardSignature(),
+            'AID'  => $this->accountId,
+            'AMT'  => $this->amount,
+            'CUR'  => $this->currency,
+            'REF'  => $this->reference,
+            'SIG'  => $this->createStandardSignature(),
+            'CTY'  => CardTransactionType::REFUND,
+            'TID'  => $this->transactionId,
+            'SIG2' => $this->signatureValidator->computeSignature($message),
         ];
+
 
         $queryData = array_filter($queryData, function ($value) {
             return $value !== null;

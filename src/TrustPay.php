@@ -157,7 +157,7 @@ class TrustPay
 
         $this->assertConfiguration();
 
-        $this->configuration->setPaymentType(Configuration::PAYMENT_TYPE_CARD_EXTENSION);
+        $this->configuration->setPaymentType(Configuration::PAYMENT_TYPE_CARD);
 
         $request = $this->requestFactory->createCardOnFile(
             $this->configuration,
@@ -189,7 +189,7 @@ class TrustPay
 
         $this->assertConfiguration();
 
-        $this->configuration->setPaymentType(Configuration::PAYMENT_TYPE_CARD_EXTENSION);
+        $this->configuration->setPaymentType(Configuration::PAYMENT_TYPE_CARD);
 
         $request = $this->requestFactory->createRefund(
             $this->configuration,

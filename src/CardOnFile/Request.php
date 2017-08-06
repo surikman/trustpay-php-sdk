@@ -88,14 +88,17 @@ class Request implements RequestInterface
             $this->currency,
             $this->reference,
             CardTransactionType::CARD_ON_FILE,
-            $card['CardID'],
-            $card['CardExp']
+            $card['CardID']
         );
 
         $queryData = [
+            'AID'     => $this->accountId,
+            'AMT'     => $this->amount,
+            'CUR'     => $this->currency,
+            'REF'     => $this->reference,
+            'SIG'     => $this->createStandardSignature(),
             'CTY'     => CardTransactionType::CARD_ON_FILE,
             'CardID'  => $card['CardID'],
-            'CardExp' => $card['CardExp'],
             'SIG2'    => $this->signatureValidator->computeSignature($message),
         ];
 

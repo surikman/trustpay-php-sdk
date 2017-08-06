@@ -20,7 +20,7 @@ class Configuration
     ];
 
     /** @var string */
-    private $cardPaymentsEndpoint = 'https://ib.trustpay.eu/mapi/cardpayments.aspx';
+    private $cardPaymentsEndpoint = 'https://ib.trustpay.eu/mapi5/Card/Pay';
 
     /** @var string */
     private $bankPaymentsEndpoint = 'https://ib.trustpay.eu/mapi/pay.aspx';

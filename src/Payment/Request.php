@@ -51,11 +51,11 @@ class Request implements RequestInterface
     {
         $queryData = $this->getDefaultQueryData();
 
-//        if ($this->isAuthorizedStoreCard()) {
-//            $queryData = array_merge($queryData, [
-//                'CTY' => CardTransactionType::INITIAL_TRANSACTION,
-//            ]);
-//        }
+        if ($this->isAuthorizedStoreCard()) {
+            $queryData = array_merge($queryData, [
+                'CTY' => CardTransactionType::CARD_ON_FILE_REGISTRATION,
+            ]);
+        }
 
         return http_build_query($queryData);
     }
